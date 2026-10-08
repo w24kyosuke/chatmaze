@@ -7,7 +7,7 @@ BLUE='\033[0;34m'
 NC='\033[0m' # No Color
 
 echo -e "${BLUE}[*] Compiling the validation script...${NC}"
-g++ -std=c++11 test/check_scc.cpp -o test/check_scc_bin
+g++ -std=c++11 test/validate_graph.cpp -o test/validate_graph_bin
 
-echo -e "${BLUE}[*] Running SCC validation on deck.js...${NC}"
-./test/check_scc_bin src/deck.js
+echo -e "${BLUE}[*] Running graph validation on deck.js...${NC}"
+./test/validate_graph_bin src/deck.js

@@ -26,8 +26,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
     function getValidNextCards(id) {
         if (!id) {
-            // Start of game, AI initiates
-            return deckData.filter(c => c.id === "A1");
+            // Start of game, AI initiates from a Source node
+            const allNexts = new Set(deckData.flatMap(c => c.next));
+            return deckData.filter(c => !allNexts.has(c.id));
         }
         const card = deckData.find(c => c.id === id);
         return card.next.map(nextId => deckData.find(c => c.id === nextId));
@@ -36,11 +37,38 @@ document.addEventListener("DOMContentLoaded", () => {
     function updateHints() {
         validMovesContainer.innerHTML = "";
         const validCards = getValidNextCards(currentCardId);
+        
+        if (currentCardId && validCards.length === 0) {
+            // Sink reached
+            const endMsg = document.createElement("div");
+            endMsg.className = "hint-chip";
+            endMsg.style.backgroundColor = "var(--md-sys-color-secondary-container)";
+            endMsg.style.color = "var(--md-sys-color-on-secondary-container)";
+            endMsg.innerHTML = `<div class="hint-text" style="font-weight: bold;">【会話終了】</div>`;
+            validMovesContainer.appendChild(endMsg);
+            
+            const restartBtn = document.createElement("button");
+            restartBtn.textContent = "もう一度会話を始める";
+            restartBtn.style.marginTop = "8px";
+            restartBtn.style.width = "100%";
+            restartBtn.addEventListener("click", () => {
+                chatHistory.innerHTML = "";
+                currentCardId = null;
+                startGame();
+            });
+            validMovesContainer.appendChild(restartBtn);
+            
+            chatInput.disabled = true;
+            return;
+        }
+        
+        chatInput.disabled = false;
+        
         validCards.forEach(card => {
             const chip = document.createElement("div");
             chip.className = "hint-chip";
             chip.innerHTML = `
-                <div class="hint-text">${card.text}</div>
+                <div class="hint-text"><span style="font-size: 0.85em; opacity: 0.7;">[${card.id}]</span> ${card.text}</div>
                 <div class="hint-pinyin">${card.pinyin}</div>
                 <div class="hint-meaning">${card.meaning}</div>
             `;
@@ -56,6 +84,7 @@ document.addEventListener("DOMContentLoaded", () => {
         const div = document.createElement("div");
         div.className = `message ${sender}`;
         div.innerHTML = `
+            <div class="node-id" style="font-size: 0.75rem; opacity: 0.7; margin-bottom: 2px;">ID: ${card.id}</div>
             <div class="text">${card.text}</div>
             <div class="pinyin">${card.pinyin}</div>
             <div class="meaning">${card.meaning}</div>
@@ -109,7 +138,9 @@ document.addEventListener("DOMContentLoaded", () => {
     function initMiller() {
         millerContainer.innerHTML = "";
         currentPath = [];
-        appendColumn(deckData, 0);
+        const allNexts = new Set(deckData.flatMap(c => c.next));
+        const sources = deckData.filter(c => !allNexts.has(c.id));
+        appendColumn(sources, 0);
     }
 
     function appendColumn(cards, colIndex) {
@@ -155,7 +186,7 @@ document.addEventListener("DOMContentLoaded", () => {
             itemDiv.className = "miller-item";
 
             itemDiv.innerHTML = `
-                <div class="miller-item-id">[${card.id}] ${card.type.split('.')[1].trim()}</div>
+                <div class="miller-item-id">[${card.id}] ${card.type.includes('.') ? card.type.split('.')[1].trim() : card.type}</div>
                 <div class="miller-item-text">${card.text}</div>
                 <div class="miller-item-chevron">chevron_right</div>
                 <div class="miller-item-details">
@@ -249,11 +280,16 @@ document.addEventListener("DOMContentLoaded", () => {
     }
     renderMatrixView();
 
+    function startGame() {
+        const sources = getValidNextCards(null);
+        const startCard = sources[Math.floor(Math.random() * sources.length)];
+        setTimeout(() => {
+            addMessage(startCard, "ai");
+            currentCardId = startCard.id;
+            updateHints();
+        }, 500);
+    }
+
     // Start Game: AI sends the first message
-    const startCard = deckData.find(c => c.id === "A1");
-    setTimeout(() => {
-        addMessage(startCard, "ai");
-        currentCardId = startCard.id;
-        updateHints();
-    }, 500);
+    startGame();
 });

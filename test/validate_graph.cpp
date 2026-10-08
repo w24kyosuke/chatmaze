@@ -40,6 +40,7 @@ int main(int argc, char* argv[]) {
 
     vector<string> nodes;
     unordered_map<string, vector<string>> edges;
+    unordered_map<string, vector<string>> reverse_edges;
 
     auto words_begin =
         sregex_iterator(content.begin(), content.end(), card_pattern);
@@ -61,48 +62,70 @@ int main(int argc, char* argv[]) {
 
         nodes.push_back(node_id);
         edges[node_id] = next_nodes;
+        for (const string& next_node : next_nodes) {
+            reverse_edges[next_node].push_back(node_id);
+        }
     }
 
     if (nodes.empty()) {
-        cerr << "Error: No nodes found. Make sure deck.js contains 'id' and "
-                "'next' properties formatted properly."
-             << endl;
+        cerr << "Error: No nodes found." << endl;
         return 1;
     }
 
-    cout << "Loaded " << nodes.size() << " cards from deck.js." << endl;
+    vector<string> sources;
+    vector<string> sinks;
 
-    bool all_scc = true;
-    for (const string &start_node : nodes) {
-        unordered_set<string> visited;
-        dfs(start_node, edges, visited);
+    for (const string& node : nodes) {
+        if (edges[node].empty()) {
+            sinks.push_back(node);
+        }
+        if (reverse_edges[node].empty()) {
+            sources.push_back(node);
+        }
+    }
 
-        if (visited.size() != nodes.size()) {
-            cout << "[!] Error: From card '" << start_node
-                 << "', cannot reach cards: ";
-            for (const string &n : nodes) {
-                if (visited.find(n) == visited.end()) {
-                    cout << n << " ";
-                }
-            }
-            cout << endl;
-            all_scc = false;
+    cout << "Loaded " << nodes.size() << " cards." << endl;
+    cout << "Found " << sources.size() << " Sources and " << sinks.size() << " Sinks." << endl;
+
+    if (sources.empty() || sinks.empty()) {
+        cerr << "❌ Error: Graph must have at least one Source and at least one Sink." << endl;
+        return 1;
+    }
+
+    // Test 1: All nodes reachable from at least one source
+    unordered_set<string> reachable_from_sources;
+    for (const string& source : sources) {
+        dfs(source, edges, reachable_from_sources);
+    }
+    
+    bool test1_passed = true;
+    for (const string& node : nodes) {
+        if (reachable_from_sources.find(node) == reachable_from_sources.end()) {
+            cout << "❌ Error: Node '" << node << "' cannot be reached from any source." << endl;
+            test1_passed = false;
+        }
+    }
+
+    // Test 2: All nodes can reach at least one sink
+    unordered_set<string> can_reach_sink;
+    for (const string& sink : sinks) {
+        dfs(sink, reverse_edges, can_reach_sink);
+    }
+
+    bool test2_passed = true;
+    for (const string& node : nodes) {
+        if (can_reach_sink.find(node) == can_reach_sink.end()) {
+            cout << "❌ Error: Node '" << node << "' cannot reach any sink (dead end or infinite loop)." << endl;
+            test2_passed = false;
         }
     }
 
     cout << "------------------------------" << endl;
-    if (all_scc) {
-        cout << "✅ Success: The graph is a valid Strongly Connected Component "
-                "(SCC)!"
-             << endl;
-        cout << "All cards can reach all other cards." << endl;
+    if (test1_passed && test2_passed) {
+        cout << "✅ Success: The graph is a valid Source-Sink connected component!" << endl;
         return 0;
     } else {
-        cout << "❌ Failure: The graph is NOT a single Strongly Connected "
-                "Component."
-             << endl;
-        cout << "Check the dead-ends or unescapable loops in your deck."
-             << endl;
+        cout << "❌ Failure: The graph validation failed." << endl;
         return 1;
     }
 }
