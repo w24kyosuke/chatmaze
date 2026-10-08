@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HelloTalk風 中国語チャット特訓</title>
+    <link rel="stylesheet" href="src/style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet" />
+</head>
+
+<body>
+    <div class="app-container">
+        <header>
+            <h1>中国語チャット特訓</h1>
+            <nav>
+                <button class="tab-btn active" data-target="chat-view">チャット</button>
+                <button class="tab-btn" data-target="flow-view">フロー探索</button>
+                <button class="tab-btn" data-target="matrix-view">遷移マトリックス</button>
+            </nav>
+        </header>
+
+        <main>
+            <!-- Chat View -->
+            <section id="chat-view" class="view active">
+                <div class="chat-history" id="chat-history">
+                    <!-- Messages will be injected here -->
+                </div>
+                <div class="chat-controls">
+                    <div class="hints-label">次に出せる手札の候補:</div>
+                    <div class="valid-moves" id="valid-moves-container">
+                        <!-- Valid next moves shown here as hints -->
+                    </div>
+                    <form id="chat-form">
+                        <input type="text" id="chat-input" placeholder="中国語を入力してください..." autocomplete="off">
+                        <button type="submit">送信</button>
+                    </form>
+                </div>
+            </section>
+
+            <!-- Flow Explorer View (Miller Columns) -->
+            <section id="flow-view" class="view">
+                <div class="miller-columns-container" id="miller-columns-container">
+                    <!-- Columns will be injected here -->
+                </div>
+            </section>
+
+            <!-- Transition Matrix View -->
+            <section id="matrix-view" class="view">
+                <div class="matrix-container" id="matrix-container">
+                    <!-- Table will be injected here -->
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script src="src/deck.js"></script>
+    <script src="src/app.js"></script>
+</body>
+
+</html>
