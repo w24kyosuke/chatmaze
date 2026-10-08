@@ -1,0 +1,29 @@
+{
+  "name": "chat-game",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "directories": {
+    "doc": "docs",
+    "test": "test"
+  },
+  "scripts": {
+    "build": "node scripts/build_deck.js",
+    "test": "./test.sh"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/w24kyosuke/chatmaze.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/w24kyosuke/chatmaze/issues"
+  },
+  "homepage": "https://github.com/w24kyosuke/chatmaze#readme",
+  "dependencies": {
+    "js-yaml": "^5.4.3"
+  }
+}

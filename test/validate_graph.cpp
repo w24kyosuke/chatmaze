@@ -35,7 +35,7 @@ int main(int argc, char* argv[]) {
     string content = buffer.str();
 
     // Regex to match: id: "A1" ... next: ["A2", "A3"]
-    regex card_pattern(R"REGEX(id:\s*"([^"]+)"[^}]+?next:\s*\[(.*?)\])REGEX");
+    regex card_pattern(R"REGEX(id:\s*"([^"]+)"[\s\S]*?next:\s*\[([\s\S]*?)\])REGEX");
     regex next_pattern(R"REGEX("([^"]+)")REGEX");
 
     vector<string> nodes;
