@@ -124,7 +124,30 @@ document.addEventListener("DOMContentLoaded", () => {
         
         const header = document.createElement("div");
         header.className = "miller-col-header";
-        header.textContent = colIndex === 0 ? "出発点を選択" : `選択 ${colIndex} 回目`;
+        
+        if (colIndex === 0) {
+            header.textContent = "出発点を選択";
+        } else {
+            header.innerHTML = `
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <span class="material-symbols-outlined back-btn" style="cursor:pointer; padding:6px; border-radius:50%; background-color:var(--md-sys-color-surface-variant); color:var(--md-sys-color-on-surface-variant); font-size:20px; transition: background-color 0.2s;" title="前の列に戻る">arrow_back</span>
+                    <span>選択 ${colIndex} 回目</span>
+                </div>
+            `;
+            const backBtn = header.querySelector('.back-btn');
+            backBtn.addEventListener('click', () => {
+                const prevCol = millerContainer.children[colIndex - 1];
+                if (prevCol) {
+                    Array.from(prevCol.querySelectorAll('.miller-item')).forEach(el => el.classList.remove('selected'));
+                }
+                currentPath = currentPath.slice(0, colIndex - 1);
+                while (millerContainer.children.length > colIndex) {
+                    millerContainer.removeChild(millerContainer.lastChild);
+                }
+            });
+            backBtn.addEventListener('mouseenter', () => backBtn.style.backgroundColor = 'var(--md-sys-color-outline)');
+            backBtn.addEventListener('mouseleave', () => backBtn.style.backgroundColor = 'var(--md-sys-color-surface-variant)');
+        }
         colDiv.appendChild(header);
 
         cards.forEach(card => {
