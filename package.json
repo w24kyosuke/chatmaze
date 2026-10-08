@@ -9,7 +9,8 @@
   },
   "scripts": {
     "build": "node scripts/build_deck.js",
-    "test": "./test.sh"
+    "test": "./test.sh",
+    "review": "node test/extract_dialogues.js"
   },
   "repository": {
     "type": "git",
